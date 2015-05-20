@@ -60,7 +60,7 @@ def dump_picked_versions(old_logging_shutdown, file_name, overwrite):
                 print("Overwriting %s" % file_name)
                 print("*********************************************")
                 open(file_name, 'w').write(picked_versions)
-            else:    
+            else:
                 print("*********************************************")
                 print("Skipped: File %s already exists." % file_name)
                 print("*********************************************")
@@ -69,16 +69,15 @@ def dump_picked_versions(old_logging_shutdown, file_name, overwrite):
             print(picked_versions)
             print("*************** /PICKED VERSIONS ***************")
 
-        old_logging_shutdown()    
+        old_logging_shutdown()
     return logging_shutdown
 
 
 def install(buildout):
-
     file_name = 'dump-requirements-file' in buildout['buildout'] and \
                 buildout['buildout']['dump-requirements-file'].strip() or \
                 None
-                
+
     overwrite = 'overwrite-requirements-file' not in buildout['buildout'] or \
                 buildout['buildout']['overwrite-requirements-file'].lower() \
                 in ['yes', 'true', 'on']
@@ -86,9 +85,8 @@ def install(buildout):
     zc.buildout.easy_install.Installer.__all_picked_versions = {}
     zc.buildout.easy_install._log_requirement = _log_requirement
     zc.buildout.easy_install.Installer._get_dist = enable_dumping_picked_versions(
-                                  zc.buildout.easy_install.Installer._get_dist)
-    
-    logging.shutdown = dump_picked_versions(logging.shutdown, 
-                                            file_name, 
+                                 zc.buildout.easy_install.Installer._get_dist)
+
+    logging.shutdown = dump_picked_versions(logging.shutdown,
+                                            file_name,
                                             overwrite)
-    
