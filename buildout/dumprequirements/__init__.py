@@ -23,15 +23,14 @@ def _log_requirement(ws, req):
 
 
 def enable_dumping_picked_versions(old_get_dist):
-    def get_dist(self, requirement, ws, always_unzip):
-        dists = old_get_dist(self, requirement, ws, always_unzip)
+    def get_dist(self, *args, **kwargs):
+        dists = old_get_dist(self, *args, **kwargs)
+
         for dist in dists:
-            if not (dist.precedence == pkg_resources.DEVELOP_DIST or \
-                    (len(requirement.specs) == 1 and requirement.specs[0][0] == '==')):
-                self.__picked_versions[dist.project_name] = dist.version
-            if not (dist.precedence == pkg_resources.DEVELOP_DIST):
-                self.__all_picked_versions[dist.project_name] = dist.version
-        return dists        
+            if not (dist.precedence == pkg_resources.DEVELOP_DIST) and \
+               not kwargs.get('for_buildout_run', False):
+                    self.__all_picked_versions[dist.project_name] = dist.version
+        return dists
     return get_dist
 
 
@@ -84,7 +83,6 @@ def install(buildout):
                 buildout['buildout']['overwrite-requirements-file'].lower() \
                 in ['yes', 'true', 'on']
 
-    zc.buildout.easy_install.Installer.__picked_versions = {}
     zc.buildout.easy_install.Installer.__all_picked_versions = {}
     zc.buildout.easy_install._log_requirement = _log_requirement
     zc.buildout.easy_install.Installer._get_dist = enable_dumping_picked_versions(
